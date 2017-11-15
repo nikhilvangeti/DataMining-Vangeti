@@ -40,7 +40,6 @@ def make_parallelogram(p,type=0):
         b = p[(i+1) % 4]
         dst = distance.euclidean(a,b)
         print(dst)
-    print()
 
 def new_space_image(pixels,width,height):
     blank_image = np.zeros((height,width,3), np.uint8)
@@ -51,33 +50,35 @@ if __name__=='__main__':
    # if len(argv) < 3:
     #    exit()
 
-    definition_file = '/Users/nikhil/jsonfile.json'
-    image_file = '/Users/nikhil/imagefile.jpg'
+    #definition_file = '/Users/nikhil/jsonfile.json'
+    #image_file = '/Users/nikhil/imagefile.jpg'
 
     s=0
     
-    spaces = load_spaces(definition_file)
-
-    img = cv.imread(image_file)
+    spaces = load_spaces('/Users/nikhil/jsonfile.json')
+    img = cv.imread('/Users/nikhil/imagefile.png')
+    
+    img=np.asarray(img)
+    #cv.imshow('img',img)
+    #cv.waitKey(0)
+    
     for space in spaces:
         points = extract_points(space)
-    
-        xmin=points[0][0] #x
-        xmax=points[2][0] #X
-        ymin= points[3][1] #y
-        ymax= points[1][1] #Y
-        
-        crop_img = img[ymax:ymin,xmax:xmin]
-        cv.imwrite("spaces/"+str(s) + ".png",crop_img)
-        
-        s=s+1
-        
+        xmin=points[3][0] 
+        xmax=points[1][0] 
+        ymin= points[0][1] 
+        ymax= points[2][1] 
+        print('nextone')
+        print('printing cropped image')
+        #cv.show("spaces/" + str(s) + ".jpg" , crop_img)
+        s = s+1
         make_parallelogram(points)
         draw_parking_space(points,img)
-        
-        hist = cv.calcHist([crop_img],[0,1],None,[180,256],[0,180,0,256])
-        np.savetxt('histograms/'+str(s)+".csv",hist,delimiter=',')
-        s=s+1
+        crop=img[ymin:ymax,xmin:xmax]
+        cv.imwrite("spaces/"+ str(s) +".png", crop)
+        hsv = cv.cvtColor(crop,cv.COLOR_BGR2HSV)
+        hist = cv.calcHist([hsv], [0, 1], None, [180, 256], [0, 180, 0, 256])
+        np.savetxt('histograms/'+str(s)+".csv", hist, delimiter=',')
     # Typical opencv methods to show images
     cv.imshow('Draw01',img)
     cv.waitKey(0)
